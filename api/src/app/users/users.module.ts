@@ -1,0 +1,14 @@
+// apps/api/src/app/users/users.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../../entities/user.entity';
+import { Organization } from '../../entities/organization.entity';
+import { Membership } from '../../entities/membership.entity';
+import { UsersService } from './users.service';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([User, Organization, Membership])],
+  providers: [UsersService],
+  exports: [UsersService],
+})
+export class UsersModule {}

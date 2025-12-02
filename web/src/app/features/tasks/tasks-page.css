@@ -1,0 +1,68 @@
+.tasks-page h2 {
+  margin-bottom: 1rem;
+}
+
+.create-card,
+.list-card {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.75rem;
+}
+
+.field input,
+.field textarea,
+.field select {
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #cbd5f0;
+}
+
+button {
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.tasks-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.tasks-table th,
+.tasks-table td {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tasks-table th {
+  text-align: left;
+  background: #f9fafb;
+}
+
+.danger-btn {
+  background: #dc2626;
+}
+
+.error {
+  color: #b91c1c;
+  margin-top: 0.5rem;
+}
