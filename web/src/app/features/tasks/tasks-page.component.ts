@@ -23,8 +23,7 @@ import { OrgUsersService } from "../org-users/org-users.service";
 
         <div class="hidden text-[11px] text-slate-400 md:block">
           <span *ngIf="currentOrgId; else noOrgMsg">
-            Managing tasks for
-            <span class="font-semibold text-slate-200">{{
+            Managing tasks for <span class="font-semibold text-slate-200">{{
               currentOrgName
             }}</span>
           </span>
@@ -121,7 +120,7 @@ import { OrgUsersService } from "../org-users/org-users.service";
                     class="w-full rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   >
                     <option value="">Unassigned</option>
-                    <option *ngFor="let m of assignableMembers" [value]="m.userId">
+                    <option *ngFor="let m of members" [value]="m.userId">
                       {{ m.fullName }} ({{ m.role }})
                     </option>
                   </select>
@@ -247,7 +246,7 @@ import { OrgUsersService } from "../org-users/org-users.service";
                           class="w-full rounded-md border border-slate-800 bg-slate-950/70 px-2 py-1 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         >
                           <option value="">Unassigned</option>
-                          <option *ngFor="let m of assignableMembers" [value]="m.userId">
+                          <option *ngFor="let m of members" [value]="m.userId">
                             {{ m.fullName }} ({{ m.role }})
                           </option>
                         </select>
@@ -301,13 +300,6 @@ export class TasksPageComponent implements OnInit {
   tasks: Task[] = [];
   members: OrgUser[] = [];
 
-  // Only show members that can legitimately be assigned to tasks
-  get assignableMembers(): OrgUser[] {
-    // Here we’re simply excluding VIEWERs.
-    // OWNER, ADMIN, MANAGER, MEMBER are all allowed.
-    return this.members.filter((m) => m.role !== "VIEWER");
-  }
-
   loading = false;
   creating = false;
   error = "";
@@ -320,13 +312,13 @@ export class TasksPageComponent implements OnInit {
   get currentOrgId(): string | null {
     return this.auth.currentOrgId;
   }
-
+  
   get currentOrgName(): string | null {
     return this.auth.currentOrgName;
   }
 
   get canAssign(): boolean {
-    return this.auth.isManagerOrAbove;
+    return this.auth.isAdminOrOwner;
   }
 
   constructor(
