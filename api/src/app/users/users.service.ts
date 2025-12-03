@@ -3,6 +3,7 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  BadRequestException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -187,6 +188,50 @@ export class UsersService {
       isNewMembership,
       roleChanged,
     };
+  }
+
+  /**
+   * Remove a membership from an organization.
+   * - Only ADMIN/OWNER can do this.
+   * - Never allow removing the last OWNER in the org.
+   */
+  async removeMembershipFromOrg(
+    actorUserId: string,
+    orgId: string,
+    membershipId: string
+  ): Promise<void> {
+    // Ensure the actor has ADMIN or OWNER rights in this org
+    await this.requireMembershipWithRole(actorUserId, orgId, OrgRole.ADMIN);
+
+    // Load the membership being removed
+    const membership = await this.membershipsRepo.findOne({
+      where: { id: membershipId },
+      relations: ["user", "organization"],
+    });
+
+    if (!membership || membership.organization.id !== orgId) {
+      throw new NotFoundException(
+        "Membership not found for this organization."
+      );
+    }
+
+    // Prevent removing the last OWNER in the org
+    if (membership.role === OrgRole.OWNER) {
+      const owners = await this.membershipsRepo.find({
+        where: {
+          organization: { id: orgId },
+          role: OrgRole.OWNER,
+        },
+      });
+
+      if (owners.length <= 1) {
+        throw new BadRequestException(
+          "Cannot remove the last OWNER from the organization."
+        );
+      }
+    }
+
+    await this.membershipsRepo.remove(membership);
   }
 
   async listMembershipsForUser(userId: string): Promise<Membership[]> {

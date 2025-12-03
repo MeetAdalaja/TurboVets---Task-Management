@@ -24,4 +24,9 @@ export class OrgUsersService {
   addOrgUser(input: AddOrgUserInput): Observable<any> {
     return this.http.post(`${API_BASE_URL}/org-users`, input);
   }
+
+    deleteOrgUser(membershipId: string) {
+    return this.http.delete<void>(`${API_BASE_URL}/org-users/${membershipId}`);
+  }
+
 }

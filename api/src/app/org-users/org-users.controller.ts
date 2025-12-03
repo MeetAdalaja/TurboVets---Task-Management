@@ -3,30 +3,32 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
+  Param,
   Body,
   Req,
   UseGuards,
   BadRequestException,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { UsersService } from '../users/users.service';
-import { LoggingService } from '../logging/logging.service';
-import { AddOrgUserDto } from './dto/add-org-user.dto';
-import { OrgRole } from '../../entities/role.enum';
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { UsersService } from "../users/users.service";
+import { LoggingService } from "../logging/logging.service";
+import { AddOrgUserDto } from "./dto/add-org-user.dto";
+import { OrgRole } from "../../entities/role.enum";
 
-@Controller('org-users')
+@Controller("org-users")
 @UseGuards(JwtAuthGuard)
 export class OrgUsersController {
   constructor(
     private usersService: UsersService,
-    private loggingService: LoggingService,
+    private loggingService: LoggingService
   ) {}
 
   private getOrgIdFromRequest(req: any): string {
-    const orgId = req.headers['x-org-id'] as string;
+    const orgId = req.headers["x-org-id"] as string;
     if (!orgId) {
-      throw new BadRequestException('x-org-id header is required');
+      throw new BadRequestException("x-org-id header is required");
     }
     return orgId;
   }
@@ -40,7 +42,7 @@ export class OrgUsersController {
     await this.usersService.requireMembershipWithRole(
       actorUserId,
       orgId,
-      OrgRole.ADMIN,
+      OrgRole.ADMIN
     );
 
     const memberships = await this.usersService.listMembershipsForOrg(orgId);
@@ -63,7 +65,7 @@ export class OrgUsersController {
     await this.usersService.requireMembershipWithRole(
       actorUserId,
       orgId,
-      OrgRole.ADMIN,
+      OrgRole.ADMIN
     );
 
     const result = await this.usersService.addUserToOrgById(
@@ -71,13 +73,13 @@ export class OrgUsersController {
       dto.email,
       dto.fullName,
       dto.role,
-      dto.password,
+      dto.password
     );
 
-    await this.loggingService.log('ORG_USER_ADDED_OR_UPDATED', {
+    await this.loggingService.log("ORG_USER_ADDED_OR_UPDATED", {
       actorUserId,
       organizationId: orgId,
-      entityType: 'User',
+      entityType: "User",
       entityId: result.user.id,
       metadata: {
         email: result.user.email,
@@ -98,5 +100,29 @@ export class OrgUsersController {
       isNewMembership: result.isNewMembership,
       roleChanged: result.roleChanged,
     };
+  }
+
+  @Delete(":membershipId")
+  async removeUserFromOrg(
+    @Req() req: any,
+    @Param("membershipId") membershipId: string
+  ) {
+    const actorUserId = req.user.userId as string;
+    const orgId = this.getOrgIdFromRequest(req);
+
+    await this.usersService.removeMembershipFromOrg(
+      actorUserId,
+      orgId,
+      membershipId
+    );
+
+    await this.loggingService.log("ORG_USER_REMOVED", {
+      actorUserId,
+      organizationId: orgId,
+      entityType: "Membership",
+      entityId: membershipId,
+    });
+
+    return { success: true };
   }
 }

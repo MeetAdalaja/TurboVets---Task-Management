@@ -1,14 +1,14 @@
 // web/src/app/app.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgIf, NgFor } from '@angular/common';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
 import { AuthService } from './core/auth.service';
 import { OrgSummary } from './core/models';
 
 @Component({
   standalone: true,
   selector: 'app-root', // keep whatever Nx initially generated here
-  imports: [CommonModule, RouterOutlet, RouterLink, NgIf, NgFor],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NgIf, NgFor],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })

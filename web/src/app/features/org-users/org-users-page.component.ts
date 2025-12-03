@@ -1,14 +1,14 @@
 // web/src/app/features/org-users/org-users-page.component.ts
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { OrgUsersService } from './org-users.service';
-import { AuthService } from '../../core/auth.service';
-import { OrgRole, OrgUser } from '../../core/models';
+import { Component, OnInit } from "@angular/core";
+import { CommonModule, NgFor, NgIf } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { OrgUsersService } from "./org-users.service";
+import { AuthService } from "../../core/auth.service";
+import { OrgRole, OrgUser } from "../../core/models";
 
 @Component({
   standalone: true,
-  selector: 'app-org-users-page',
+  selector: "app-org-users-page",
   imports: [CommonModule, NgFor, NgIf, FormsModule],
   template: `
     <div class="org-users-page">
@@ -20,16 +20,12 @@ import { OrgRole, OrgUser } from '../../core/models';
       </div>
 
       <!-- Org selected but not enough role -->
-      <div
-        class="info warning"
-        *ngIf="currentOrgId && !canManageOrgUsers"
-      >
+      <div class="info warning" *ngIf="currentOrgId && !canManageOrgUsers">
         <p>
           You are logged in as
-          <strong>{{ currentOrgRole || 'UNKNOWN' }}</strong> in this
-          organization.
-          Only <strong>ADMIN</strong> and <strong>OWNER</strong> can
-          view and manage members.
+          <strong>{{ currentOrgRole || "UNKNOWN" }}</strong> in this
+          organization. Only <strong>ADMIN</strong> and
+          <strong>OWNER</strong> can view and manage members.
         </p>
       </div>
 
@@ -86,7 +82,7 @@ import { OrgRole, OrgUser } from '../../core/models';
             <div class="success" *ngIf="success">{{ success }}</div>
 
             <button type="submit" [disabled]="saving">
-              {{ saving ? 'Saving...' : 'Save user' }}
+              {{ saving ? "Saving..." : "Save user" }}
             </button>
           </form>
         </section>
@@ -103,6 +99,7 @@ import { OrgRole, OrgUser } from '../../core/models';
                 <th>Email</th>
                 <th>Name</th>
                 <th>Role</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -110,25 +107,38 @@ import { OrgRole, OrgUser } from '../../core/models';
                 <td>{{ user.email }}</td>
                 <td>{{ user.fullName }}</td>
                 <td>{{ user.role }}</td>
+                <td>
+                  <button
+                    class="danger-btn"
+                    (click)="removeUser(user)"
+                    [disabled]="
+                      user.membershipId ? removing[user.membershipId] : false
+                    "
+                  >
+                    {{
+                      user.membershipId && removing[user.membershipId]
+                        ? "Removing..."
+                        : "Remove"
+                    }}
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
 
-          <div *ngIf="!loading && !users.length && !error">
-            No users found.
-          </div>
+          <div *ngIf="!loading && !users.length && !error">No users found.</div>
         </section>
       </ng-container>
     </div>
   `,
-  styleUrls: ['./org-users-page.component.css'],
+  styleUrls: ["./org-users-page.component.css"],
 })
 export class OrgUsersPageComponent implements OnInit {
   users: OrgUser[] = [];
   loading = false;
   saving = false;
-  error = '';
-  success = '';
+  error = "";
+  success = "";
 
   form: {
     email: string;
@@ -136,14 +146,15 @@ export class OrgUsersPageComponent implements OnInit {
     role: OrgRole;
     password?: string;
   } = {
-    email: '',
-    fullName: '',
-    role: 'MEMBER',
+    email: "",
+    fullName: "",
+    role: "MEMBER",
   };
 
   currentOrgId: string | null = null;
   currentOrgRole: OrgRole | null = null;
   canManageOrgUsers = false;
+  removing: Record<string, boolean> = {};
 
   constructor(
     private orgUsersService: OrgUsersService,
@@ -168,7 +179,7 @@ export class OrgUsersPageComponent implements OnInit {
           }
         },
         error: () => {
-          this.error = 'Failed to load organizations';
+          this.error = "Failed to load organizations";
         },
       });
     } else if (this.canManageOrgUsers) {
@@ -180,8 +191,8 @@ export class OrgUsersPageComponent implements OnInit {
     if (!this.currentOrgId || !this.canManageOrgUsers) return;
 
     this.loading = true;
-    this.error = '';
-    this.success = '';
+    this.error = "";
+    this.success = "";
 
     this.orgUsersService.getOrgUsers().subscribe({
       next: (users) => {
@@ -189,8 +200,7 @@ export class OrgUsersPageComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.error =
-          'Failed to load users (requires ADMIN or OWNER in org).';
+        this.error = "Failed to load users (requires ADMIN or OWNER in org).";
         this.loading = false;
       },
     });
@@ -200,19 +210,47 @@ export class OrgUsersPageComponent implements OnInit {
     if (!this.currentOrgId || !this.canManageOrgUsers) return;
 
     this.saving = true;
-    this.error = '';
-    this.success = '';
+    this.error = "";
+    this.success = "";
 
     this.orgUsersService.addOrgUser(this.form).subscribe({
       next: () => {
         this.saving = false;
-        this.success = 'User added/updated successfully.';
+        this.success = "User added/updated successfully.";
         this.loadUsers();
       },
       error: () => {
         this.saving = false;
         this.error =
-          'Failed to add/update user (requires ADMIN or OWNER in org).';
+          "Failed to add/update user (requires ADMIN or OWNER in org).";
+      },
+    });
+  }
+
+  removeUser(user: OrgUser) {
+    if (!user.membershipId) {
+      return;
+    }
+
+    const confirmed = confirm(`Remove ${user.email} from this organization?`);
+    if (!confirmed) return;
+
+    this.error = "";
+    this.success = "";
+    this.removing[user.membershipId] = true;
+
+    this.orgUsersService.deleteOrgUser(user.membershipId).subscribe({
+      next: () => {
+        delete this.removing[user.membershipId!];
+        // Remove from local list
+        this.users = this.users.filter(
+          (u) => u.membershipId !== user.membershipId
+        );
+        this.success = "User removed from organization.";
+      },
+      error: () => {
+        delete this.removing[user.membershipId!];
+        this.error = "Failed to remove user (requires ADMIN or OWNER in org).";
       },
     });
   }

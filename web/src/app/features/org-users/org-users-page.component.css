@@ -76,3 +76,12 @@ button {
   border-color: #facc15;
   color: #92400e;
 }
+
+.danger-btn {
+  background: #dc2626;
+}
+
+.danger-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
