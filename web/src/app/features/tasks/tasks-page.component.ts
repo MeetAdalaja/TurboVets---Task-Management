@@ -23,7 +23,8 @@ import { OrgUsersService } from "../org-users/org-users.service";
 
         <div class="hidden text-[11px] text-slate-400 md:block">
           <span *ngIf="currentOrgId; else noOrgMsg">
-            Managing tasks for <span class="font-semibold text-slate-200">{{
+            Managing tasks for
+            <span class="font-semibold text-slate-200">{{
               currentOrgName
             }}</span>
           </span>
@@ -108,7 +109,10 @@ import { OrgUsersService } from "../org-users/org-users.service";
                   />
                 </div>
 
-                <div class="space-y-1.5" *ngIf="canAssign && members.length">
+                <div
+                  class="space-y-1.5"
+                  *ngIf="canAssign && assignableMembers.length"
+                >
                   <label
                     class="text-[11px] font-semibold uppercase tracking-wide text-slate-400"
                   >
@@ -120,7 +124,10 @@ import { OrgUsersService } from "../org-users/org-users.service";
                     class="w-full rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   >
                     <option value="">Unassigned</option>
-                    <option *ngFor="let m of members" [value]="m.userId">
+                    <option
+                      *ngFor="let m of assignableMembers"
+                      [value]="m.userId"
+                    >
                       {{ m.fullName }} ({{ m.role }})
                     </option>
                   </select>
@@ -236,7 +243,7 @@ import { OrgUsersService } from "../org-users/org-users.service";
                     <td class="px-3 py-2 align-top">
                       <ng-container
                         *ngIf="
-                          canAssign && members.length;
+                          canAssign && assignableMembers.length;
                           else assigneeReadonly
                         "
                       >
@@ -246,7 +253,7 @@ import { OrgUsersService } from "../org-users/org-users.service";
                           class="w-full rounded-md border border-slate-800 bg-slate-950/70 px-2 py-1 text-xs text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         >
                           <option value="">Unassigned</option>
-                          <option *ngFor="let m of members" [value]="m.userId">
+                          <option *ngFor="let m of assignableMembers" [value]="m.userId">
                             {{ m.fullName }} ({{ m.role }})
                           </option>
                         </select>
@@ -299,6 +306,7 @@ import { OrgUsersService } from "../org-users/org-users.service";
 export class TasksPageComponent implements OnInit {
   tasks: Task[] = [];
   members: OrgUser[] = [];
+  assignableMembers: OrgUser[] = [];
 
   loading = false;
   creating = false;
@@ -312,7 +320,7 @@ export class TasksPageComponent implements OnInit {
   get currentOrgId(): string | null {
     return this.auth.currentOrgId;
   }
-  
+
   get currentOrgName(): string | null {
     return this.auth.currentOrgName;
   }
@@ -376,6 +384,8 @@ export class TasksPageComponent implements OnInit {
     this.orgUsersService.getOrgUsers().subscribe({
       next: (users) => {
         this.members = users;
+        // Exclude VIEWERs from assignable list
+        this.assignableMembers = users.filter((u) => u.role !== "VIEWER");
       },
       error: () => {
         // silently ignore; assignment UI will just not show options
