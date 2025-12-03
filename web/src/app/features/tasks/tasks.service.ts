@@ -18,6 +18,7 @@ export class TasksService {
     title: string;
     description?: string;
     dueDate?: string;
+    assignedToUserId?: string;
   }): Observable<Task> {
     return this.http.post<Task>(`${API_BASE_URL}/tasks`, input);
   }
@@ -29,6 +30,7 @@ export class TasksService {
       description?: string;
       status?: TaskStatus;
       dueDate?: string;
+      assignedToUserId?: string | null;
     }
   ): Observable<Task> {
     return this.http.patch<Task>(`${API_BASE_URL}/tasks/${id}`, changes);

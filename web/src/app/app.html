@@ -1,48 +1,50 @@
-<!-- <app-nx-welcome></app-nx-welcome>
-<router-outlet></router-outlet> -->
-
-
 <div class="app-shell">
-    <header class="app-header">
-        <div class="left">
-            <span class="logo">TurboVets Tasker</span>
-        </div>
+  <header class="app-header">
+    <div class="left">
+      <span class="logo">TurboVets Tasker</span>
+    </div>
 
-        <!-- Logged-in header -->
-        <div class="right" *ngIf="isLoggedIn; else loggedOut">
-            <span class="user">
-                {{ email }}
-            </span>
+    <div class="right" *ngIf="isLoggedIn; else loggedOut">
+      <span class="user">
+        {{ email }}
+        <ng-container *ngIf="currentOrgRole">
+          · Role: {{ currentOrgRole }}
+        </ng-container>
+      </span>
 
-            <!-- Org selector -->
-            <ng-container *ngIf="organizations?.length">
-                <label class="org-label">
-                    Org:
-                    <select [value]="currentOrgId || ''" (change)="onOrgChange($event)">
-                        <option *ngFor="let org of organizations" [value]="org.organizationId">
-                            {{ org.organizationName }} ({{ org.role }})
-                        </option>
-                    </select>
-                </label>
-            </ng-container>
+      <ng-container *ngIf="organizations?.length">
+        <label class="org-label">
+          Org:
+          <select
+            [value]="currentOrgId || ''"
+            (change)="onOrgChange($event)"
+          >
+            <option
+              *ngFor="let org of organizations"
+              [value]="org.organizationId"
+            >
+              {{ org.organizationName }} ({{ org.role }})
+            </option>
+          </select>
+        </label>
+      </ng-container>
 
-            <nav class="nav-links">
-                <a routerLink="/tasks" routerLinkActive="active">Tasks</a>
-                <a routerLink="/org-users" routerLinkActive="active">Org Users</a>
-            </nav>
+      <nav class="nav-links">
+        <a routerLink="/tasks" routerLinkActive="active">Tasks</a>
+        <a routerLink="/org-users" routerLinkActive="active">Org Users</a>
+      </nav>
 
-            <button class="logout-btn" (click)="logout()">Logout</button>
-        </div>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
 
-        <!-- Logged-out header -->
-        <ng-template #loggedOut>
-            <div class="right">
-                <a routerLink="/login">Login</a>
-            </div>
-        </ng-template>
-    </header>
+    <ng-template #loggedOut>
+      <div class="right">
+        <a routerLink="/login">Login</a>
+      </div>
+    </ng-template>
+  </header>
 
-    <main class="app-main">
-        <router-outlet></router-outlet>
-    </main>
+  <main class="app-main">
+    <router-outlet></router-outlet>
+  </main>
 </div>

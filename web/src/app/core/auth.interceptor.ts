@@ -7,7 +7,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
 
   let headers = req.headers;
-
   const token = auth.token;
   const orgId = auth.currentOrgId;
 

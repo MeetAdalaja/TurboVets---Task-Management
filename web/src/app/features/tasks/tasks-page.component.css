@@ -35,11 +35,6 @@ button {
   font-size: 0.9rem;
 }
 
-button:disabled {
-  opacity: 0.7;
-  cursor: default;
-}
-
 .tasks-table {
   width: 100%;
   border-collapse: collapse;
@@ -51,11 +46,18 @@ button:disabled {
 .tasks-table td {
   padding: 0.4rem 0.5rem;
   border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
 }
 
 .tasks-table th {
   text-align: left;
   background: #f9fafb;
+}
+
+.task-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.15rem;
 }
 
 .danger-btn {
@@ -65,4 +67,13 @@ button:disabled {
 .error {
   color: #b91c1c;
   margin-top: 0.5rem;
+}
+
+.info {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
 }

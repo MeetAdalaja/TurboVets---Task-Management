@@ -28,15 +28,30 @@ export interface Task {
   title: string;
   description?: string;
   status: TaskStatus;
-  dueDate?: string;
+  dueDate?: string | null;
   createdAt: string;
   updatedAt: string;
+  createdBy?: TaskUser;
   assignedTo?: TaskUser | null;
 }
 
 export interface OrgUser {
+  membershipId?: string;
   userId: string;
   email: string;
   fullName: string;
   role: OrgRole;
+}
+
+// for later if we add an Audit Log page
+export interface AuditLogEntry {
+  id: string;
+  action: string;
+  actorUserId: string;
+  actorEmail?: string;
+  organizationId: string;
+  entityType: string;
+  entityId: string;
+  metadata?: Record<string, unknown> | null;
+  createdAt: string;
 }

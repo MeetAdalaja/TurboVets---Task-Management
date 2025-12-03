@@ -61,3 +61,18 @@ button {
   color: #15803d;
   margin-top: 0.25rem;
 }
+
+.info {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+}
+
+.info.warning {
+  background: #fefce8;
+  border-color: #facc15;
+  color: #92400e;
+}
