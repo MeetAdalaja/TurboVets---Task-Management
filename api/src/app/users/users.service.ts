@@ -138,7 +138,7 @@ export class UsersService {
     isNewMembership: boolean;
     roleChanged: boolean;
   }> {
-    const org = await this.orgsRepo.findOne({ where: { id: orgId } });
+        const org = await this.orgsRepo.findOne({ where: { id: orgId } });
     if (!org) {
       throw new NotFoundException("Organization not found");
     }
@@ -146,13 +146,33 @@ export class UsersService {
     let user = await this.findByEmail(email);
     let isNewUser = false;
 
+    // --- NEW RULES ---
+    // - If user does NOT exist: password is REQUIRED.
+    // - If user already exists: password (if given) will RESET their password.
     if (!user) {
-      const pwdToUse = password || "ChangeMe123!"; // default temp password
-      user = await this.createUser(email, fullName, pwdToUse);
+      if (!password || !password.trim()) {
+        throw new BadRequestException(
+          "Password is required when creating a new user.",
+        );
+      }
+      user = await this.createUser(email, fullName, password);
       isNewUser = true;
-    } else if (fullName && user.fullName !== fullName) {
-      user.fullName = fullName;
-      user = await this.usersRepo.save(user);
+    } else {
+      let changed = false;
+
+      if (fullName && user.fullName !== fullName) {
+        user.fullName = fullName;
+        changed = true;
+      }
+
+      if (password && password.trim().length > 0) {
+        user.passwordHash = await bcrypt.hash(password, 10);
+        changed = true;
+      }
+
+      if (changed) {
+        user = await this.usersRepo.save(user);
+      }
     }
 
     let membership = await this.membershipsRepo.findOne({
@@ -188,6 +208,7 @@ export class UsersService {
       isNewMembership,
       roleChanged,
     };
+
   }
 
   /**
@@ -195,44 +216,44 @@ export class UsersService {
    * - Only ADMIN/OWNER can do this.
    * - Never allow removing the last OWNER in the org.
    */
-  async removeMembershipFromOrg(
+    async removeMembershipFromOrg(
     actorUserId: string,
     orgId: string,
     membershipId: string
   ): Promise<void> {
-    // Ensure the actor has ADMIN or OWNER rights in this org
+    // Ensure the actor is at least ADMIN in this org
     await this.requireMembershipWithRole(actorUserId, orgId, OrgRole.ADMIN);
 
-    // Load the membership being removed
     const membership = await this.membershipsRepo.findOne({
       where: { id: membershipId },
-      relations: ["user", "organization"],
+      relations: ["organization", "user"],
     });
 
     if (!membership || membership.organization.id !== orgId) {
       throw new NotFoundException(
-        "Membership not found for this organization."
+        "Membership not found in this organization",
       );
     }
 
-    // Prevent removing the last OWNER in the org
+    // Safety: do NOT remove last OWNER from an org
     if (membership.role === OrgRole.OWNER) {
-      const owners = await this.membershipsRepo.find({
+      const ownerCount = await this.membershipsRepo.count({
         where: {
           organization: { id: orgId },
           role: OrgRole.OWNER,
         },
       });
 
-      if (owners.length <= 1) {
-        throw new BadRequestException(
-          "Cannot remove the last OWNER from the organization."
+      if (ownerCount <= 1) {
+        throw new ForbiddenException(
+          "Cannot remove the last OWNER from an organization.",
         );
       }
     }
 
-    await this.membershipsRepo.remove(membership);
+    await this.membershipsRepo.delete(membership.id);
   }
+
 
   async listMembershipsForUser(userId: string): Promise<Membership[]> {
     return this.membershipsRepo.find({
