@@ -42,7 +42,7 @@ export class OrgUsersController {
     await this.usersService.requireMembershipWithRole(
       actorUserId,
       orgId,
-      OrgRole.ADMIN
+      OrgRole.MANAGER
     );
 
     const memberships = await this.usersService.listMembershipsForOrg(orgId);
@@ -65,7 +65,7 @@ export class OrgUsersController {
     await this.usersService.requireMembershipWithRole(
       actorUserId,
       orgId,
-      OrgRole.ADMIN
+      OrgRole.MANAGER
     );
 
     const result = await this.usersService.addUserToOrgById(

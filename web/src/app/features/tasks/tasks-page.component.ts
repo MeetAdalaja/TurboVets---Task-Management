@@ -326,8 +326,9 @@ export class TasksPageComponent implements OnInit {
   }
 
   get canAssign(): boolean {
-    return this.auth.isAdminOrOwner;
+    return this.auth.isManagerOrAbove;
   }
+  
 
   constructor(
     private tasksService: TasksService,
@@ -336,6 +337,8 @@ export class TasksPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+
+    console.log('canAssign on init:', this.canAssign, 'role:', this.auth.getCurrentOrgRole?.());
     if (!this.auth.isLoggedIn) return;
 
     if (!this.currentOrgId) {
