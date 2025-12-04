@@ -5,6 +5,7 @@ import { FormsModule } from "@angular/forms";
 import { OrgUsersService } from "./org-users.service";
 import { AuthService } from "../../core/auth.service";
 import { OrgRole, OrgUser } from "../../core/models";
+import { ToastService } from "../../shared/toast.service"; // 👈 toast
 
 @Component({
   standalone: true,
@@ -15,7 +16,7 @@ import { OrgRole, OrgUser } from "../../core/models";
       <!-- Header -->
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 class="text-lg font-semibold text-slate-50">
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-50">
             Organization members
           </h2>
           <p class="mt-1 text-xs text-slate-400">
@@ -27,7 +28,7 @@ import { OrgRole, OrgUser } from "../../core/models";
         <div class="text-[11px] text-slate-400">
           <ng-container *ngIf="currentOrgRole; else noRole">
             You are signed in as
-            <span class="font-semibold text-slate-200">
+            <span class="font-semibold text-slate-600 dark:text-slate-300">
               {{ currentOrgRole }}
             </span>
             for this organization.
@@ -71,51 +72,22 @@ import { OrgRole, OrgUser } from "../../core/models";
         <ng-container *ngIf="canManageOrgUsers">
           <!-- Add / update member -->
           <section class="card-elevated px-4 py-4 sm:px-5 sm:py-5">
-            <header class="mb-4 flex items-start justify-between gap-2">
+            <header
+              class="mb-3 flex flex-wrap items-center justify-between gap-3"
+            >
               <div>
                 <h3 class="text-sm font-semibold text-slate-50">
-                  {{
-                    editingMembershipId
-                      ? "Update member"
-                      : "Add or update member"
-                  }}
+                  Current members
                 </h3>
                 <p class="mt-0.5 text-[11px] text-slate-400">
-                  Invite a user by email or adjust the role of an existing
-                  member in this organization.
+                  Review who belongs to this organization and adjust membership
+                  as needed. Use search and filters to quickly find a member.
                 </p>
-                <p
-                  *ngIf="editingMembershipId"
-                  class="mt-1 text-[11px] text-indigo-300"
-                >
-                  Editing
-                  <span class="font-semibold">
-                    {{ formEmail || "selected member" }}
-                  </span>
-                  .
-                </p>
-              </div>
-              <div class="flex flex-col items-end gap-2">
-                <div
-                  class="hidden rounded-full bg-slate-900/80 px-3 py-1 text-[11px] text-slate-300 md:inline-flex md:items-center md:gap-1"
-                >
-                  <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
-                  ADMIN / OWNER only
-                </div>
-                <!-- Cancel edit -->
-                <button
-                  *ngIf="editingMembershipId"
-                  type="button"
-                  (click)="cancelEdit()"
-                  class="btn-org-cancel"
-                >
-                  Cancel edit
-                </button>
               </div>
             </header>
 
             <!-- Alerts -->
-            <div class="space-y-2 mb-3">
+            <div class="space-y-2 mb-3 p-3 py-5">
               <div
                 *ngIf="success"
                 class="rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-100"
@@ -170,7 +142,7 @@ import { OrgRole, OrgUser } from "../../core/models";
                       type="text"
                       name="fullName"
                       [(ngModel)]="formFullName"
-                      placeholder="Optional – used for display only"
+                      placeholder="Mandatory for new users"
                       class="w-full rounded-lg border border-slate-800 bg-slate-900/80 px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
@@ -188,7 +160,7 @@ import { OrgRole, OrgUser } from "../../core/models";
                       type="text"
                       name="password"
                       [(ngModel)]="formPassword"
-                      placeholder="Leave blank to auto-generate or keep existing"
+                      placeholder="Mandatory for new users"
                       class="w-full rounded-lg border border-slate-800 bg-slate-900/80 px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                     <p class="mt-1 text-[11px] text-slate-500">
@@ -416,7 +388,7 @@ import { OrgRole, OrgUser } from "../../core/models";
               <button
                 type="submit"
                 [disabled]="saving || !formEmail"
-                class="inline-flex w-full items-center justify-center rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm shadow-indigo-500/40 transition disabled:cursor-not-allowed disabled:opacity-60 org-members-submit-btn"
+                class="inline-flex w-full items-center justify-center rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm shadow-indigo-500/40 transition disabled:cursor-not-allowed disabled:opacity-60"
                 [ngClass]="
                   editingMembershipId
                     ? 'bg-emerald-500 hover:bg-emerald-400'
@@ -428,23 +400,6 @@ import { OrgRole, OrgUser } from "../../core/models";
                 </span>
                 <span *ngIf="saving">
                   {{ editingMembershipId ? "Updating…" : "Saving…" }}
-                </span>
-              </button>
-              <button
-                type="submit"
-                [disabled]="saving || !formEmail"
-                class="inline-flex w-full items-center justify-center rounded-lg px-3 py-2 text-xs font-semibold text-white shadow-sm shadow-indigo-500/40 transition disabled:cursor-not-allowed disabled:opacity-60"
-                [ngClass]="
-                  editingMembershipId
-                    ? 'bg-emerald-500 hover:bg-emerald-400'
-                    : 'bg-indigo-500 hover:bg-indigo-400'
-                "
-              >
-                <span *ngIf="!saving">
-                  {{ editingMembershipId ? "Update member" : "Save member" }}
-                </span>
-                <span *ngIf="saving">
-                  {{ editingMembershipId ? "Updating…" : "Saving.." }}
                 </span>
               </button>
             </form>
@@ -462,12 +417,56 @@ import { OrgRole, OrgUser } from "../../core/models";
                   as needed.
                 </p>
               </div>
+
               <div
                 *ngIf="users.length"
-                class="hidden rounded-full bg-slate-900/80 px-3 py-1 text-[11px] text-slate-300 sm:inline-flex sm:items-center sm:gap-1.5"
+                class="flex flex-1 flex-wrap items-center justify-end gap-2 text-[11px] text-slate-300"
               >
-                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-                <span>{{ users.length }} members</span>
+                <!-- visible count pill -->
+                <div
+                  class="hidden items-center gap-1 rounded-full bg-slate-900/80 px-3 py-1 sm:flex"
+                >
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                  <span>
+                    {{ getVisibleUsers().length }} / {{ users.length }} visible
+                  </span>
+                </div>
+
+                <!-- search -->
+                <div
+                  class="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-950/80 px-2 py-1"
+                >
+                  <span class="hidden text-slate-500 sm:inline">Search | </span>
+                  <input
+                    [(ngModel)]="memberQuery"
+                    name="memberQuery"
+                    placeholder="Name or email..."
+                    class="w-28 bg-transparent text-[11px] text-slate-100 placeholder:text-slate-500 focus:outline-none sm:w-40"
+                  />
+                </div>
+
+                <!-- role filter -->
+                <select
+                  [(ngModel)]="memberRoleFilter"
+                  name="memberRoleFilter"
+                  class="rounded-lg border border-slate-800 bg-slate-950/80 px-2 py-1 text-[11px] text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  <option value="ALL">All roles</option>
+                  <option *ngFor="let r of orgRoles" [value]="r">
+                    {{ r }}
+                  </option>
+                </select>
+
+                <!-- sort -->
+                <select
+                  [(ngModel)]="memberSortMode"
+                  name="memberSortMode"
+                  class="rounded-lg border border-slate-800 bg-slate-950/80 px-2 py-1 text-[11px] text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  <option value="role">Role (OWNER → VIEWER)</option>
+                  <option value="name_asc">Name A → Z</option>
+                  <option value="name_desc">Name Z → A</option>
+                </select>
               </div>
             </header>
 
@@ -490,10 +489,17 @@ import { OrgRole, OrgUser } from "../../core/models";
             <!-- Card list with hover like Tasks -->
             <div
               *ngIf="users.length"
-              class="mt-2 max-h-[420px] space-y-2 overflow pr-1 px-3"
+              class="mt-2 max-h-[520px] space-y-2 overflow-y-auto overflow-x-hidden pr-1 pl-3 members-scroll"
             >
               <div
-                *ngFor="let user of users"
+                *ngIf="!getVisibleUsers().length"
+                class="rounded-xl border border-dashed border-slate-700 bg-slate-950/60 px-3 py-4 text-center text-[11px] text-slate-400"
+              >
+                No members match the current filters.
+              </div>
+
+              <div
+                *ngFor="let user of getVisibleUsers()"
                 class="group relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/90 px-3 py-2 text-xs text-slate-100 shadow-sm shadow-black/30 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-[1.01] hover:border-indigo-400 hover:shadow-[0_18px_35px_rgba(15,23,42,0.9)]"
               >
                 <!-- left gradient bar -->
@@ -543,7 +549,7 @@ import { OrgRole, OrgUser } from "../../core/models";
                     <button
                       type="button"
                       (click)="startEditUser(user)"
-                      class="btn-org-update "
+                      class="btn-org-update inline-flex items-center rounded-md border border-slate-600 bg-slate-900/80 px-2 py-1 my-1 text-[10px] font-semibold text-slate-100 opacity-0 transition group-hover:opacity-100 hover:bg-slate-800/80"
                     >
                       Update
                     </button>
@@ -556,7 +562,7 @@ import { OrgRole, OrgUser } from "../../core/models";
                       [disabled]="
                         user.membershipId ? removing[user.membershipId] : false
                       "
-                      class="btn-org-remove"
+                      class="btn-org-remove inline-flex items-center rounded-md border border-rose-500/40 bg-rose-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-100 opacity-0 transition group-hover:opacity-100 hover:bg-rose-500/20"
                     >
                       {{
                         user.membershipId && removing[user.membershipId]
@@ -569,6 +575,50 @@ import { OrgRole, OrgUser } from "../../core/models";
               </div>
             </div>
           </section>
+
+          <!-- Remove member confirmation modal -->
+          <div
+            *ngIf="pendingRemoveUser as userToRemove"
+            class="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm"
+          >
+            <div
+              class="mx-4 w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900/95 p-4 shadow-xl shadow-black/60"
+              role="dialog"
+              aria-modal="true"
+            >
+              <h4 class="mb-2 text-sm font-semibold text-slate-50">
+                Remove member?
+              </h4>
+              <p class="text-xs text-slate-300">
+                This will remove
+                <span class="font-semibold">{{ userToRemove.email }}</span>
+                from this organization. They’ll lose access to its tasks and
+                data.
+              </p>
+              <p class="mt-2 text-[11px] text-slate-500">
+                You can always add them again later with a new invitation.
+              </p>
+
+              <div class="mt-4 flex justify-end gap-2 text-xs">
+                <button
+                  type="button"
+                  (click)="cancelRemoveUser()"
+                  class="rounded-full border border-slate-600 bg-slate-900/80 px-3 py-1 font-semibold text-slate-100 hover:bg-slate-800/90"
+                  [disabled]="removingFromModal"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  (click)="confirmRemoveUser()"
+                  class="rounded-full border border-rose-500/70 bg-rose-500/15 px-3 py-1 font-semibold text-rose-100 hover:bg-rose-500/25 disabled:cursor-not-allowed disabled:opacity-60"
+                  [disabled]="removingFromModal"
+                >
+                  {{ removingFromModal ? "Removing…" : "Remove member" }}
+                </button>
+              </div>
+            </div>
+          </div>
         </ng-container>
       </ng-container>
     </div>
@@ -577,6 +627,11 @@ import { OrgRole, OrgUser } from "../../core/models";
 })
 export class OrgUsersPageComponent implements OnInit {
   users: OrgUser[] = [];
+
+  // filtering & sorting for members list
+  memberQuery = "";
+  memberRoleFilter: OrgRole | "ALL" = "ALL";
+  memberSortMode: "role" | "name_asc" | "name_desc" = "role";
 
   formEmail = "";
   formFullName = "";
@@ -591,6 +646,8 @@ export class OrgUsersPageComponent implements OnInit {
   success = "";
 
   removing: Record<string, boolean> = {};
+  pendingRemoveUser: OrgUser | null = null;
+  removingFromModal = false;
 
   // which membership (if any) is currently being edited via the form
   editingMembershipId: string | null = null;
@@ -609,7 +666,8 @@ export class OrgUsersPageComponent implements OnInit {
 
   constructor(
     private readonly orgUsersService: OrgUsersService,
-    private readonly auth: AuthService
+    private readonly auth: AuthService,
+    private readonly toast: ToastService // 👈 toast injected
   ) {}
 
   ngOnInit(): void {
@@ -637,8 +695,61 @@ export class OrgUsersPageComponent implements OnInit {
       error: () => {
         this.loading = false;
         this.error = "Failed to load organization members.";
+        this.toast.show("Failed to load organization members.", {
+          type: "error",
+          title: "Members",
+        });
       },
     });
+  }
+
+  getVisibleUsers(): OrgUser[] {
+    let result = [...this.users];
+
+    // text search (email + full name)
+    const q = this.memberQuery.trim().toLowerCase();
+    if (q) {
+      result = result.filter((u) => {
+        const email = u.email?.toLowerCase() ?? "";
+        const name = (u.fullName || "").toLowerCase();
+        return email.includes(q) || name.includes(q);
+      });
+    }
+
+    // role filter
+    if (this.memberRoleFilter !== "ALL") {
+      result = result.filter((u) => u.role === this.memberRoleFilter);
+    }
+
+    // sort
+    const sortMode = this.memberSortMode;
+    const roleOrder: OrgRole[] = [
+      "OWNER",
+      "ADMIN",
+      "MANAGER",
+      "MEMBER",
+      "VIEWER",
+    ];
+
+    result.sort((a, b) => {
+      const nameA = (a.fullName || a.email || "").toLowerCase();
+      const nameB = (b.fullName || b.email || "").toLowerCase();
+
+      switch (sortMode) {
+        case "name_asc":
+          return nameA.localeCompare(nameB);
+        case "name_desc":
+          return nameB.localeCompare(nameA);
+        case "role":
+        default:
+          const idxA = roleOrder.indexOf(a.role);
+          const idxB = roleOrder.indexOf(b.role);
+          if (idxA !== idxB) return idxA - idxB;
+          return nameA.localeCompare(nameB);
+      }
+    });
+
+    return result;
   }
 
   private resetFormState(): void {
@@ -688,39 +799,72 @@ export class OrgUsersPageComponent implements OnInit {
         this.success = this.editingMembershipId
           ? "Member updated successfully."
           : "Member added successfully.";
+
+        this.toast.show(this.success, {
+          type: "success",
+          title: "Members",
+        });
+
         this.resetFormState();
         this.loadUsers();
       },
       error: () => {
         this.saving = false;
         this.error = "Failed to add or update member.";
+        this.toast.show("Failed to add or update member.", {
+          type: "error",
+          title: "Members",
+        });
       },
     });
   }
 
+  // open modal instead of browser confirm
   removeUser(user: OrgUser) {
     if (!user.membershipId || !this.canManageOrgUsers) return;
 
-    const confirmed = confirm(`Remove ${user.email} from this organization?`);
-    if (!confirmed) return;
-
-    this.removing[user.membershipId] = true;
+    this.pendingRemoveUser = user;
     this.error = "";
     this.success = "";
+  }
 
-    this.orgUsersService.deleteOrgUser(user.membershipId).subscribe({
+  // user clicked "Remove member" in modal
+  confirmRemoveUser(): void {
+    const user = this.pendingRemoveUser;
+    if (!user || !user.membershipId || !this.canManageOrgUsers) return;
+
+    const membershipId = user.membershipId;
+    this.removing[membershipId] = true;
+    this.removingFromModal = true;
+
+    this.orgUsersService.deleteOrgUser(membershipId).subscribe({
       next: () => {
-        delete this.removing[user.membershipId!];
-        this.users = this.users.filter(
-          (u) => u.membershipId !== user.membershipId
-        );
+        delete this.removing[membershipId];
+        this.users = this.users.filter((u) => u.membershipId !== membershipId);
         this.success = "User removed from organization.";
+        this.toast.show("User removed from organization.", {
+          type: "info",
+          title: "Members",
+        });
+        this.removingFromModal = false;
+        this.pendingRemoveUser = null;
       },
       error: () => {
-        delete this.removing[user.membershipId!];
+        delete this.removing[membershipId];
         this.error =
           "Failed to remove user (requires ADMIN or OWNER in this org).";
+        this.toast.show("Failed to remove user.", {
+          type: "error",
+          title: "Members",
+        });
+        this.removingFromModal = false;
+        this.pendingRemoveUser = null;
       },
     });
+  }
+
+  // user clicked "Cancel" in modal
+  cancelRemoveUser(): void {
+    this.pendingRemoveUser = null;
   }
 }

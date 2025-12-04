@@ -1,6 +1,9 @@
 /* Enable Tailwind v4 via PostCSS plugin (@tailwindcss/postcss) */
 @import "tailwindcss";
 
+/* Enable dark: classes whenever .dark is on html/body/root */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Global base styling */
 :root {
   color-scheme: dark;
@@ -35,3 +38,4 @@ body {
   color: #9ca3af;
   font-size: 0.8rem;
 }
+
