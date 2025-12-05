@@ -13,7 +13,7 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: ['http://localhost:4200'], // dev
   });
 
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
