@@ -18,8 +18,18 @@ import { OrgUsersModule } from './org-users/org-users.module';
 
 import { AppController } from './app.controller';
 
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      // When built on Render:
+      //   Angular → dist/web
+      //   API     → api/dist
+      // compiled app.module is in api/dist/app
+      rootPath: join(__dirname, '..', '..', '..', 'dist', 'web'),
+    }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: appConfig.db.database,

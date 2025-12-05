@@ -4,7 +4,11 @@ import { HttpClient } from '@angular/common/http';
 import { OrgRole, OrgUser } from '../../core/models';
 import { Observable } from 'rxjs';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:3000/api'
+    : '/api';
+
 
 export interface AddOrgUserInput {
   email: string;

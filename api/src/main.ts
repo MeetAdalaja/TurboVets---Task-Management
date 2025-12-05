@@ -1,16 +1,3 @@
-// // apps/api/src/main.ts
-// import { NestFactory } from '@nestjs/core';
-// import { AppModule } from './app/app.module';
-
-// async function bootstrap() {
-//   const app = await NestFactory.create(AppModule);
-//   app.setGlobalPrefix('api'); // so routes are /api/...
-//   await app.listen(3000);
-// }
-// bootstrap();
-
-
-// when frontend started
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 
@@ -19,11 +6,17 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  // IMPORTANT: allow Angular dev server
+  // CORS: keep localhost for dev, optionally add more via env
+  const allowedOrigins = ['http://localhost:4200'];
+  if (process.env.CORS_ORIGIN) {
+    allowedOrigins.push(...process.env.CORS_ORIGIN.split(','));
+  }
+
   app.enableCors({
-    origin: 'http://localhost:4200',
+    origin: allowedOrigins,
   });
 
-  await app.listen(3000);
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();

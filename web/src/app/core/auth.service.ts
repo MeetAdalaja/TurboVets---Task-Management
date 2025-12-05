@@ -9,7 +9,11 @@ import {
 } from 'rxjs';
 import { AuthState, OrgRole, OrgSummary } from './models';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:3000/api'
+    : '/api';
+
 const STORAGE_KEY = 'turbovets_auth_state';
 
 @Injectable({ providedIn: 'root' })
