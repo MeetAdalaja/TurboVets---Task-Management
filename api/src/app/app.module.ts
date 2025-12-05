@@ -28,7 +28,6 @@ import { join } from 'path';
       //   API     → api/dist
       // compiled app.module is in api/dist/app
       rootPath: join(process.cwd(), 'dist', 'web'),
-      exclude: ['/api*'], // don't try to serve static files for API routes
     }),
     TypeOrmModule.forRoot({
       type: 'sqlite',
