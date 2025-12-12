@@ -1,9 +1,7 @@
-TurboVets Task Management – Secure Multi-Org Task Board
+# TurboVets Task Management – Secure Multi-Org Task Board
 
 
-MEET ADALAJA – FULL STACK ENGINEER
-
-REFERENCE: TEJAS WADIWALA – SENIOR SOFTWARE DEVELOPER
+### MEET ADALAJA – FULL STACK ENGINEER
 
 
 
@@ -19,14 +17,14 @@ The goal was to design and implement:
 
 
 
-Table of Contents
+## Table of Contents
 
 
 GitHub Link:
 
 Deployed Version:
 
-- High-Level Overview
+## High-Level Overview
 Each organization represents various branches – location wise (e.g. “TurboVets – San Diego”, “TurboVets – Austin”).
 
 A user can be a member of one or more organizations with a specific role in each.
@@ -43,24 +41,24 @@ The system is deliberately focused on:
 - Clarity: code structured so you can see where each concern lives (entities, services, controllers, guards, UI pages).
 
 - Tech Stack
-Monorepo & Tooling
+## Monorepo & Tooling
 
 - [Nx](https://nx.dev/) – Monorepo tooling (TypeScript project references, task running).
 - Node.js + npm.
-Backend (API – `api/`)
+### Backend (API – `api/`)
 
 - [NestJS](https://nestjs.com/) – Modular Node.js framework.
 - [TypeORM](https://typeorm.io/) – ORM with decorators for entities & relations.
 - SQLite (file-based) for local development (configurable to Postgres in production).
 - JSON Web Tokens (JWT) for authentication.
 - Bcrypt for password hashing.
-Frontend (Web – `web/`)
+### Frontend (Web – `web/`)
 
 - [Angular](https://angular.io/) – Standalone component architecture.
 - [Tailwind CSS](https://tailwindcss.com/) – Styling.
 - Angular HTTP client + interceptor for attaching JWT and Org context.
 
-- Setup Instructions (Backend & Frontend)
+## Setup Instructions (Backend & Frontend)
 This section is written to match the assessment’s “Setup Instructions” requirement explicitly.
 
 1. Prerequisites
@@ -133,13 +131,13 @@ npx nx serve web
 Org members page (for Owner/Admin).
 
 
-- Arcitecture & Design Decisions
-Why Nx Monorepo?
+## Architecture & Design Decisions
+### Why Nx Monorepo?
 
 - Keeps backend and frontend in one place.
 - Shared TypeScript types / interfaces between API & UI can live in data/.
 - Consistent tooling for building, linting, and testing both sides.
-Why NestJS + Angular?
+### Why NestJS + Angular?
 
 - The assessment explicitly mentions these technologies.
 - Both have strong opinions around structure, which keeps the code organized:
@@ -152,14 +150,14 @@ RBAC Approach
 - The OrgRole enum has a natural “level” hierarchy:
 - OWNER > ADMIN > MANAGER > MEMBER > VIEWER.
 - This makes it easy to adjust in the future (e.g., add a new role or adjust responsibilities).
-Audit Logging
+## Audit Logging
 
 - Rather than sprinkling raw console.log calls, changes go through a LoggingService that writes structured records to the AuditLog entity.
 - Benefits:
 - Consistent shape of logs.
 - Easier to filter by action, actorUserId, organizationId, or entityType.
 - Can later be extended to stream to external logging systems.
-Task & Membership Safety Rules
+## Task & Membership Safety Rules
 
 - Tasks are always scoped by x-org-id to prevent cross-org data leakage.
 - Membership deletes:
@@ -167,8 +165,8 @@ Task & Membership Safety Rules
 - Assignee dropdown:
 - Excludes VIEWER role to avoid assigning work to someone who is read-only.
 
-- Data Model Explanation
-Core Entities
+## Data Model Explanation
+### Core Entities
 
 User:
 
@@ -225,7 +223,7 @@ This structure:
 
 - Cleanly separates identity (User) from membership (Membership) and role (OrgRole).
 - Ensures all Tasks and AuditLogs are scoped by Organization.
-Org Roles (RBAC)
+## Org Roles (RBAC)
 
 The project uses a 5-level role system, scoped per organization (a user can have different roles in different orgs):
 
@@ -255,7 +253,7 @@ The project uses a 5-level role system, scoped per organization (a user can have
 - Implementation detail: Internally, roles can be treated as having a level so we can compare them (OWNER > ADMIN > MANAGER > MEMBER > VIEWER), which simplifies permission checks.
 
 - Security & Authentication
-JWT Auth & Org Context
+## JWT Auth & Org Context
 
 Authentication flow:
 
@@ -313,7 +311,7 @@ Access control is implemented in two layers:
 This approach keeps controllers thin and moves the real permission logic into reusable service-layer helpers.
 
 
-- Backend API Overview
+## Backend API Overview
 Base URL (local dev): http://localhost:3000/api
 
 High-level areas:
@@ -721,7 +719,7 @@ Response (example):
 - Frontend Overview
 Base URL (local dev) Web:
 
-Global Layout
+## Global Layout
 
 The root AppComponent provides:
 
@@ -747,7 +745,7 @@ Login Page (/login)
 - Navigates to /tasks.
 For convenience, the login page can also mention demo accounts and their credentials in a small helper panel.
 
-Task Page (/tasks)
+## Task Page (/tasks)
 
 
 - Layout:
@@ -773,7 +771,7 @@ Tasks Board:
 - Changing a Assignee or field triggers an update call to the API.
 - Viewer role sees a read-only view (no editable controls).
 - When no tasks exist, a friendly “empty state” message is shown.
-Org Users Admin Page (/org-users)
+## Org Users Admin Page (/org-users)
 
 
 Only visible/enabled for Owners/Admins.
@@ -824,10 +822,10 @@ Users & Memberships (example)
 All seeded accounts share a known password for convenience in local dev (e.g. Password123!).
 
 
-- Future Considerations
+## Future Considerations
 This section directly addresses the “Future Considerations” requirements from the assessment.
 
-Advanced Role Delegation
+### Advanced Role Delegation
 
 Support custom roles per organization:
 
@@ -839,7 +837,7 @@ Implement delegated administration:
 Introduce resource-level permissions:
 
 - Per-task overrides (e.g. “Only this small group can edit this task”).
-Production-Ready Security
+### Production-Ready Security
 
 JWT Refresh Tokens
 
@@ -860,7 +858,7 @@ Hardening
 - Add stricter content security policies (CSP).
 - Add rate limiting for login and other sensitive endpoints.
 - Expand validation for all DTOs to prevent invalid input.
-Scaling Permission Checks Efficiently
+### Scaling Permission Checks Efficiently
 
 Push more checks into database queries:
 
