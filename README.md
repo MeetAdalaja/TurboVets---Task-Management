@@ -20,9 +20,9 @@ The goal was to design and implement:
 ## Table of Contents
 
 
-GitHub Link:
+GitHub Link: https://github.com/MeetAdalaja/TurboVets---Task-Management
 
-Deployed Version:
+Deployed Version: https://turbovets-task-management.onrender.com 
 
 ## High-Level Overview
 Each organization represents various branches – location wise (e.g. “TurboVets – San Diego”, “TurboVets – Austin”).
