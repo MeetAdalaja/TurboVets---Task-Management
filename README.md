@@ -1,109 +1,445 @@
-# TurbovetsTasker
+# TurboVets Tasker – Multi‑tenant RBAC Task Management
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A full‑stack, **multi‑tenant task management platform** built with **Angular** (frontend) and **NestJS** (backend), designed to showcase **real‑world authentication**, **role‑based access control (RBAC)**, and **multi‑organization** access patterns.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+> Built as a technical assessment inspired by TurboVets, this project focuses on clean architecture, strict permission rules, and a polished developer/demo experience.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+---
 
-## Generate a library
+## 🔗 Table of Contents
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+1. [Overview](#-overview)
+2. [Key Features](#-key-features)
+3. [System Architecture](#-system-architecture)
+4. [Tech Stack](#-tech-stack)
+5. [Project Structure](#-project-structure)
+6. [Getting Started](#-getting-started)
+7. [Authentication & RBAC Model](#-authentication--rbac-model)
+8. [Demo Roles & Scenarios](#-demo-roles--scenarios)
+9. [Design Choices & Trade-offs](#-design-choices--trade-offs)
+10. [Future Improvements](#-future-improvements)
+11. [Screenshots & Demo](#-screenshots--demo)
+12. [Author & Contact](#-author--contact)
+13. [License](#-license)
+
+---
+
+## 🧭 Overview
+
+**TurboVets Tasker** is a multi‑tenant web application where:
+
+- Users can belong to **multiple organizations** (e.g., `TurboVets – San Diego`, `TurboVets – Austin`, `Happy Paws Animal Clinic`).
+- Each user gets a **role per organization** (Owner, Admin, Manager, Member, Viewer).
+- Every action in the system is governed by **strict RBAC rules**, enforced on both the **API** and the **UI**.
+
+This project is intentionally built like a **real SaaS product** to demonstrate:
+
+- How to design **multi‑org data models**.
+- How to implement **defensive RBAC** using NestJS guards and service‑level checks.
+- How to create a **role‑aware Angular UI** that feels smooth and secure to end‑users.
+
+---
+
+## ✨ Key Features
+
+### Multi‑tenant organizations
+
+- Separate organizations with isolated data:
+  - Tasks, members, and settings are always **scoped by organization**.
+- A single user can belong to multiple organizations with **different roles** in each.
+- Organization switcher in the UI to change context safely.
+
+### Five‑role RBAC model
+
+Roles (from highest to lowest):
+
+- **Owner**
+- **Admin**
+- **Manager**
+- **Member**
+- **Viewer**
+
+Each role has clear, realistic permissions, for example:
+
+- `Viewer`: read‑only access; cannot create, update, or delete anything.
+- `Member`: can collaborate on tasks but cannot manage organization settings.
+- `Manager`: can manage tasks and team execution within the org.
+- `Admin`: can manage members and settings, but typically not the root ownership logic.
+- `Owner`: full control over the organization and its settings.
+
+### Authentication & authorization
+
+- Token‑based authentication (login + protected REST API endpoints).
+- **NestJS guards** and custom decorators for route‑level authorization:
+  - Ensures only authenticated users can access protected routes.
+  - Ensures the current user has the required role for an action.
+- **Service‑layer checks** as a second line of defense:
+  - Prevents bypassing rules via direct API calls or crafted requests.
+
+### Role‑aware Angular frontend
+
+- Protected routes using route guards.
+- UI automatically adapts based on role:
+  - Buttons and menus hidden or disabled if the user lacks permission.
+  - Clear messaging for forbidden actions.
+- Organization switcher so users can safely switch between orgs they belong to.
+
+### Developer‑friendly demo setup
+
+- Seed scripts create:
+  - Multiple organizations
+  - Owners, Admins, Managers, Members, and Viewers
+  - A user who belongs to multiple orgs with different roles
+- Designed to easily demo scenarios like:
+  - “What happens when a `Viewer` tries to modify data?”
+  - “What can a `Manager` do that a `Member` cannot?”
+  - “How does the same user behave across two different organizations?”
+
+---
+
+## 🏗 System Architecture
+
+At a high level:
+
+```text
+[ Angular Frontend ]  -->  [ NestJS API ]  -->  [ Database (SQL via TypeORM) ]
+         |                          |
+ [ Auth Guards,                    [ Auth Guards,
+   Role-aware UI ]                  Service-level RBAC ]
 ```
 
-## Run tasks
+### Backend
 
-To build the library use:
+- **NestJS** modular architecture:
+  - `auth` module for authentication and tokens.
+  - `organizations` module for org CRUD and membership management.
+  - `tasks` module for task creation, updates, and filtering.
+  - Shared RBAC utilities for role checks and permissions.
+- Controllers handle HTTP requests, while services handle business logic and permission enforcement.
+- TypeORM entities model users, organizations, org memberships (user + org + role), tasks, etc.
 
-```sh
-npx nx build pkg1
+### Frontend
+
+- **Angular** SPA:
+  - Auth service to store and attach tokens to requests.
+  - HTTP interceptors for auth headers and error handling.
+  - Route guards to protect private routes.
+  - Components/pages for organizations, members, and tasks, with role‑aware UX.
+
+---
+
+## 🧰 Tech Stack
+
+**Frontend**
+
+- Angular
+- TypeScript
+- Angular Router & HttpClient
+- Modern, utility‑first styling (Tailwind‑style classes / CSS)
+
+**Backend**
+
+- NestJS (Node.js, TypeScript)
+- TypeORM (SQL database)
+- Class‑validator / class‑transformer for DTO validation
+- NestJS Guards, Interceptors, and custom decorators for RBAC
+
+**General**
+
+- RESTful APIs
+- Environment‑based configuration (`.env`)
+- Seed scripts for realistic test data
+
+---
+
+## 📁 Project Structure
+
+> Folder names may vary slightly depending on your setup; this is the general idea.
+
+```text
+turbovets-tasker/
+├── backend/
+│   ├── src/
+│   │   ├── auth/
+│   │   ├── organizations/
+│   │   ├── tasks/
+│   │   ├── common/        # shared RBAC utilities, decorators, guards
+│   │   └── main.ts
+│   ├── test/
+│   ├── ormconfig.ts or equivalent
+│   ├── package.json
+│   └── ...env files, scripts, etc.
+└── frontend/
+    ├── src/
+    │   ├── app/
+    │   │   ├── core/      # auth service, interceptors, models
+    │   │   ├── features/  # orgs, members, tasks pages
+    │   │   └── shared/    # components, UI pieces
+    │   └── index.html
+    ├── angular.json
+    ├── package.json
+    └── ...env files, assets, styles
 ```
 
-To run any task with Nx use:
+---
 
-```sh
-npx nx <target> <project-name>
+## 🚀 Getting Started
+
+### 1. Prerequisites
+
+- Node.js (LTS)
+- npm or yarn
+- A SQL database (e.g., PostgreSQL/MySQL; configured via TypeORM)
+- Git
+
+### 2. Clone the repository
+
+```bash
+git clone https://github.com/<your-username>/turbovets-tasker.git
+cd turbovets-tasker
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+> You can rename the repo; just update the project name in this README.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### 3. Backend setup (NestJS)
 
-## Versioning and releasing
-
-To version and release the library use
-
-```
-npx nx release
-```
-
-Pass `--dry-run` to see what would happen without actually releasing the library.
-
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
+```bash
+cd backend
+npm install
+# or
+yarn
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+Copy the environment template and update `DB` credentials, JWT secret, and any other config:
 
-```sh
-npx nx sync:check
+```bash
+cp .env.example .env
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+Run database migrations and seeds (adjust to your actual scripts):
 
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+```bash
+npm run typeorm:migration:run
+npm run seed
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+Start the backend:
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+```bash
+npm run start:dev
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+By default, the API will be available at something like:
 
-## Install Nx Console
+```text
+http://localhost:3000
+```
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+### 4. Frontend setup (Angular)
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+cd frontend
+npm install
+# or
+yarn
+```
 
-## Useful links
+Update the environment files (e.g., `src/environments/environment.ts`) so the frontend points to your backend API URL.
 
-Learn more:
+Start the Angular dev server:
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+npm start
+# or
+ng serve
+```
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+By default, the frontend will be available at something like:
+
+```text
+http://localhost:4200
+```
+
+### 5. Logging in (seeded users)
+
+The seed script creates multiple organizations and demo users with different roles (Owner, Admin, Manager, Member, Viewer).
+
+> Check the seed file for the exact email/password combinations.  
+> Example users (you can modify these as you like):
+>
+> - `owner@demo.com` – Owner in one organization
+> - `manager@demo.com` – Manager in one organization
+> - `viewer@demo.com` – Viewer in one organization
+> - `multi.org@demo.com` – Different roles across multiple organizations
+
+Use any of these accounts to explore role‑specific behavior.
+
+---
+
+## 🔐 Authentication & RBAC Model
+
+### Entities
+
+At a conceptual level:
+
+- **User**
+- **Organization**
+- **OrgMembership** (joins **User** + **Organization** + **Role**)
+- **Task** (always belongs to a single organization)
+
+This allows:
+
+- A user to belong to multiple organizations.
+- The same user to have different roles in each organization.
+
+### Role definitions (example)
+
+| Role    | Typical capabilities                                                                 |
+|--------|----------------------------------------------------------------------------------------|
+| Owner  | Full control over the organization, members, roles, and all data                     |
+| Admin  | Manage members and settings, high‑level configuration                                |
+| Manager| Manage tasks and team execution within the organization                              |
+| Member | Work on tasks (create/update own items), limited settings access                     |
+| Viewer | Read‑only access; cannot create, update, or delete                                   |
+
+### Where RBAC is enforced
+
+1. **API level (NestJS guards + decorators)**  
+   - Guards ensure:
+     - The request is authenticated.
+     - The user belongs to the target organization.
+     - The user has at least a certain role, e.g. `@Roles('Manager', 'Admin', 'Owner')`.
+   - This prevents unauthorized access even if the frontend is bypassed.
+
+2. **Service level (business logic checks)**  
+   - Service methods verify:
+     - The resource belongs to the user’s organization.
+     - The user’s role allows this specific action (e.g., only `Owner` can change some org‑level settings).
+   - This adds a second layer of protection beyond controller guards.
+
+3. **Frontend level (Angular UI/UX)**  
+   - Route guards restrict navigation to protected routes.
+   - The UI hides or disables actions the user cannot perform.
+   - Attempting forbidden actions results in friendly error messages rather than crashes.
+
+---
+
+## 🎭 Demo Roles & Scenarios
+
+Here are some realistic demo flows you can show in an interview or presentation:
+
+1. **Viewer vs. Manager**
+   - Log in as a **Viewer**:
+     - Can see tasks but **cannot** create, edit, or delete them.
+     - “Add task” buttons and destructive actions are hidden or disabled.
+   - Log in as a **Manager**:
+     - Can create and update tasks, assign them to members.
+     - Still cannot change some organization‑level settings.
+
+2. **Owner full control**
+   - Log in as an **Owner**:
+     - Can manage members and their roles.
+     - Can update organization settings.
+     - Still scoped to that **single organization**; cannot touch others.
+
+3. **Multi‑organization user**
+   - Log in as a user who belongs to multiple organizations:
+     - Switch between orgs via the org selector.
+     - In one org they might be a `Viewer`, in another a `Manager` or `Admin`.
+     - Notice how the UI options change when the org context changes.
+
+These flows clearly demonstrate both **RBAC** and **multi‑tenant isolation**.
+
+---
+
+## 🧠 Design Choices & Trade-offs
+
+Some key decisions made in this project:
+
+- **Membership‑based roles**  
+  Roles are attached to **(User, Organization)** instead of just the user.  
+  This matches real SaaS products where the same user can be an admin in one workspace and a viewer in another.
+
+- **Double‑layered authorization**  
+  RBAC rules are enforced both:
+  - at the controller level (via guards & decorators), and
+  - at the service level (business rules).
+  This reduces the risk of mistakes where a route is exposed but the underlying service still prevents misuse.
+
+- **Explicit scoping by organization**  
+  All queries for tasks, members, and settings are explicitly scoped by organization ID.  
+  This is crucial for multi‑tenant safety and makes it easier to reason about data isolation.
+
+- **Seed‑first approach**  
+  A rich seed script makes it easy to:
+  - spin up the project quickly,
+  - demo features in interviews,
+  - test edge cases across different roles and organizations.
+
+- **Clear separation of modules**  
+  Auth, organizations, tasks, and shared logic each live in their own NestJS modules, which keeps the codebase maintainable and extendable.
+
+---
+
+## 🔮 Future Improvements
+
+If given more time, I would extend the project with:
+
+- **Activity & audit logs**  
+  - Track who did what and when (e.g., “Manager X updated Task Y”).
+  - Helpful for security reviews and compliance.
+
+- **More granular permissions**  
+  - Permissions at the project or team level.
+  - Custom roles per organization.
+
+- **Soft deletes and recovery flows**  
+  - Safer task deletion, with undo/restore options.
+
+- **End‑to‑end tests**  
+  - Cypress or Playwright to test critical RBAC flows end‑to‑end.
+
+- **Advanced filtering & search**  
+  - Filter tasks by role, assignee, status, and tag.
+  - Better support for large organizations.
+
+- **Dockerization**  
+  - Docker + docker‑compose for one‑command setup of backend, frontend, and database.
+
+---
+
+## 🖼 Screenshots & Demo
+
+You can add screenshots or GIFs here once you capture them, for example:
+
+- **Dashboard view** – tasks and organization switcher.
+- **Members page** – list of org members with roles.
+- **Forbidden action** – example of a viewer attempting to modify data.
+
+```md
+![Dashboard](./docs/screenshots/dashboard.png)
+![Members](./docs/screenshots/members.png)
+```
+
+If you deploy the app, also add:
+
+- **Live Demo:** `https://<your-demo-url>`
+
+---
+
+## 👤 Author & Contact
+
+**Author:** Meet Adalaja
+
+- LinkedIn: https://www.linkedin.com/in/meet-adalaja
+- Portfolio: https://meetadalja-portfolio.vercel.app
+- GitHub: https://github.com/MeetAdalaja
+
+If you’re interested in this project or want to talk about RBAC, multi‑tenant SaaS design, or full‑stack development, feel free to reach out.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.  
+You are free to use, modify, and distribute it for personal or commercial purposes, with proper attribution.
