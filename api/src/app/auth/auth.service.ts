@@ -12,6 +12,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  // Validates a user's credentials
   async validateUser(email: string, pass: string): Promise<User> {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
@@ -24,6 +25,7 @@ export class AuthService {
     return user;
   }
 
+  // Generates a JWT for the authenticated user
   async login(user: User) {
     const payload = { sub: user.id, email: user.email };
     return {

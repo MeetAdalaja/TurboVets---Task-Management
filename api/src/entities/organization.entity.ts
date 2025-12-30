@@ -13,6 +13,7 @@ import { AuditLog } from './audit-log.entity';
 
 @Entity()
 export class Organization {
+  // Columns
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -25,6 +26,9 @@ export class Organization {
   @UpdateDateColumn()
   updatedAt: Date;
 
+
+  
+  // Relations
   @OneToMany(() => Membership, (m) => m.organization)
   memberships: Membership[];
 

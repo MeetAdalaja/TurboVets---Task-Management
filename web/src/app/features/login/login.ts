@@ -58,9 +58,9 @@ import { ToastService } from "../../shared/toast.service";
                   <p
                     class="text-[11px] leading-relaxed text-slate-600 dark:text-slate-400"
                   >
-                    TurboVets Tasker connects multiple organizations into a single
-                    space so owners, admins, managers, and staff stay aligned
-                    on what’s happening next.
+                    TurboVets Tasker connects multiple organizations into a
+                    single space so owners, admins, managers, and staff stay
+                    aligned on what’s happening next.
                   </p>
 
                   <!-- Small stats chips -->
@@ -119,9 +119,24 @@ import { ToastService } from "../../shared/toast.service";
                     ></rect>
 
                     <!-- Top bar -->
-                    <circle cx="26" cy="26" r="3" class="fill-rose-400"></circle>
-                    <circle cx="36" cy="26" r="3" class="fill-amber-400"></circle>
-                    <circle cx="46" cy="26" r="3" class="fill-emerald-400"></circle>
+                    <circle
+                      cx="26"
+                      cy="26"
+                      r="3"
+                      class="fill-rose-400"
+                    ></circle>
+                    <circle
+                      cx="36"
+                      cy="26"
+                      r="3"
+                      class="fill-amber-400"
+                    ></circle>
+                    <circle
+                      cx="46"
+                      cy="26"
+                      r="3"
+                      class="fill-emerald-400"
+                    ></circle>
 
                     <rect
                       x="70"
@@ -306,7 +321,6 @@ import { ToastService } from "../../shared/toast.service";
                       rx="2"
                       class="fill-emerald-300 dark:fill-emerald-400"
                     ></rect>
-
                   </svg>
                 </div>
               </div>
@@ -315,7 +329,9 @@ import { ToastService } from "../../shared/toast.service";
 
           <!-- Heading + copy under the illustration -->
           <div class="space-y-3">
-            <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+            <h1
+              class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50"
+            >
               Sign in to manage tasks across Organizations
             </h1>
 
@@ -325,14 +341,14 @@ import { ToastService } from "../../shared/toast.service";
               organization.
             </p>
 
-            <ul class="mt-2 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+            <ul
+              class="mt-2 space-y-2 text-sm text-slate-600 dark:text-slate-300"
+            >
               <li class="flex items-start gap-2">
                 <span
                   class="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-indigo-400"
                 ></span>
-                <span
-                  >Two-level organizational RBAC with various roles.</span
-                >
+                <span>Two-level organizational RBAC with various roles.</span>
               </li>
               <li class="flex items-start gap-2">
                 <span
@@ -538,12 +554,13 @@ export class LoginComponent {
     private auth: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private toast: ToastService 
+    private toast: ToastService
   ) {
+    // If not logged in, the guard redirects to /login?returnUrl=<originalUrl>. After login, LoginComponent reads returnUrl and navigates back to it.
     this.returnUrl = this.route.snapshot.queryParamMap.get("returnUrl");
   }
 
-    onSubmit() {
+  onSubmit() {
     if (!this.email || !this.password) return;
 
     this.loading = true;
@@ -572,5 +589,4 @@ export class LoginComponent {
       },
     });
   }
-
 }

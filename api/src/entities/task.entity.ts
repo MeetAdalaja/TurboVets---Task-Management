@@ -14,10 +14,11 @@ import { TaskStatus } from './task-status.enum';
 
 @Entity()
 export class Task {
+  // Columns
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Index()
+  @Index() // indexing title can help search/filter
   @Column()
   title: string;
 
@@ -30,6 +31,7 @@ export class Task {
   @Column({ type: 'datetime', nullable: true })
   dueDate?: Date;
 
+  // Relations
   @ManyToOne(() => Organization, (org) => org.tasks, { eager: true })
   organization: Organization;
 

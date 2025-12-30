@@ -19,6 +19,7 @@ export class AppController {
     const userId = req.user.userId as string;
 
     const memberships = await this.usersService.listMembershipsForUser(userId);
+    console.log('Memberships:', memberships);
 
     return memberships.map((m) => ({
       organizationId: m.organization.id,

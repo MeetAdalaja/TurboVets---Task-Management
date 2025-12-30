@@ -5,7 +5,7 @@ import { FormsModule } from "@angular/forms";
 import { OrgUsersService } from "./org-users.service";
 import { AuthService } from "../../core/auth.service";
 import { OrgRole, OrgUser } from "../../core/models";
-import { ToastService } from "../../shared/toast.service"; // 👈 toast
+import { ToastService } from "../../shared/toast.service";
 
 @Component({
   standalone: true,
@@ -667,10 +667,11 @@ export class OrgUsersPageComponent implements OnInit {
   constructor(
     private readonly orgUsersService: OrgUsersService,
     private readonly auth: AuthService,
-    private readonly toast: ToastService // 👈 toast injected
+    private readonly toast: ToastService 
   ) {}
 
   ngOnInit(): void {
+    console.log(!this.auth.isLoggedIn, !this.currentOrgId, !this.canManageOrgUsers);
     if (
       !this.auth.isLoggedIn ||
       !this.currentOrgId ||
@@ -681,6 +682,7 @@ export class OrgUsersPageComponent implements OnInit {
     this.loadUsers();
   }
 
+  
   loadUsers() {
     if (!this.currentOrgId || !this.canManageOrgUsers) return;
 
@@ -790,7 +792,7 @@ export class OrgUsersPageComponent implements OnInit {
       email: this.formEmail.trim(),
       fullName: this.formFullName.trim() || undefined,
       role: this.formRole,
-      password: passwordTrimmed || undefined, // optional password, same behavior as old UI
+      password: passwordTrimmed || undefined, 
     };
 
     this.orgUsersService.addOrgUser(payload as any).subscribe({
@@ -819,7 +821,7 @@ export class OrgUsersPageComponent implements OnInit {
     });
   }
 
-  // open modal instead of browser confirm
+  // open modal 
   removeUser(user: OrgUser) {
     if (!user.membershipId || !this.canManageOrgUsers) return;
 

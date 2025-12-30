@@ -11,11 +11,13 @@ import { Organization } from './organization.entity';
 import { OrgRole } from './role.enum';
 
 @Entity()
-@Unique(['user', 'organization'])
+@Unique(['user', 'organization']) // prevents duplicate memberships: not allow multiple roles per user in one org
 export class Membership {
+  // Columns
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  // Relations
   @ManyToOne(() => User, (user) => user.memberships, { eager: true })
   user: User;
 
@@ -26,6 +28,7 @@ export class Membership {
   )
   organization: Organization;
 
-  @Column({ type: 'text' })
+  // Role of the user in the organization
+  @Column({ type: 'text' }) // SQLite does not have a native ENUM data type, so need to use TEXT
   role: OrgRole;
 }

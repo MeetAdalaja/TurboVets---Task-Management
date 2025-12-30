@@ -1,5 +1,6 @@
 // web/src/app/core/models.ts
 
+// should match backend enum OrgRole
 export type OrgRole = 'OWNER' | 'ADMIN' | 'MANAGER' | 'MEMBER' | 'VIEWER';
 
 export interface OrgSummary {

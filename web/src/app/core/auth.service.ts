@@ -1,22 +1,17 @@
 // web/src/app/core/auth.service.ts
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import {
-  BehaviorSubject,
-  Observable,
-  map,
-  tap,
-} from 'rxjs';
-import { AuthState, OrgRole, OrgSummary } from './models';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { BehaviorSubject, Observable, map, tap } from "rxjs";
+import { AuthState, OrgRole, OrgSummary } from "./models";
 
 const API_BASE_URL =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:3000/api'
-    : '/api';
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000/api"
+    : "/api";
 
-const STORAGE_KEY = 'turbovets_auth_state';
+const STORAGE_KEY = "turbovets_auth_state";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AuthService {
   private authStateSubject = new BehaviorSubject<AuthState | null>(null);
   authState$ = this.authStateSubject.asObservable();
@@ -53,7 +48,9 @@ export class AuthService {
     }
   }
 
+  // only checks token in local storage
   get token(): string | null {
+    // console.log(this.authStateSubject ?? null);
     return this.authStateSubject.value?.token ?? null;
   }
 
@@ -66,6 +63,7 @@ export class AuthService {
   }
 
   get currentOrgId(): string | null {
+    // console.log("curr",this.authStateSubject.value?.currentOrgId);
     return this.authStateSubject.value?.currentOrgId ?? null;
   }
 
@@ -81,24 +79,18 @@ export class AuthService {
   getCurrentOrgRole(): OrgRole | null {
     const orgId = this.currentOrgId;
     if (!orgId) return null;
-    const org = this.orgsSubject.value.find(
-      (o) => o.organizationId === orgId
-    );
+    const org = this.orgsSubject.value.find((o) => o.organizationId === orgId);
     return org?.role ?? null;
   }
 
   get isAdminOrOwner(): boolean {
     const role = this.getCurrentOrgRole();
-    return role === 'ADMIN' || role === 'OWNER';
+    return role === "ADMIN" || role === "OWNER";
   }
 
   get isManagerOrAbove(): boolean {
     const role = this.getCurrentOrgRole();
-    return (
-      role === 'MANAGER' ||
-      role === 'ADMIN' ||
-      role === 'OWNER'
-    );
+    return role === "MANAGER" || role === "ADMIN" || role === "OWNER";
   }
 
   // ---------- API calls ----------
@@ -115,7 +107,9 @@ export class AuthService {
             token: res.access_token,
             email,
           };
+          // store token/email in AuthState
           this.setAuthState(state);
+          //reset org list to empty (fresh reload after login)
           this.orgsSubject.next([]);
         }),
         map(() => void 0)
@@ -132,42 +126,43 @@ export class AuthService {
    * Automatically picks the first org if none selected yet.
    */
   loadOrganizations(): Observable<OrgSummary[]> {
-    return this.http
-      .get<OrgSummary[]>(`${API_BASE_URL}/me/organizations`)
-      .pipe(
-        tap((orgs) => {
-          this.orgsSubject.next(orgs);
-          const current = this.authStateSubject.value;
-          if (current && !current.currentOrgId && orgs.length > 0) {
-            this.setCurrentOrg(orgs[0]);
-          } else if (current && current.currentOrgId) {
-            // if we had a selected org but its name/role changed, sync it
-            const match = orgs.find(
-              (o) => o.organizationId === current.currentOrgId
-            );
-            if (match) {
-              this.setCurrentOrg(match);
-            }
+    return this.http.get<OrgSummary[]>(`${API_BASE_URL}/me/organizations`).pipe(
+      tap((orgs) => {
+        this.orgsSubject.next(orgs);
+        const current = this.authStateSubject.value;
+        // console.log(current);
+
+        if (current && !current.currentOrgId && orgs.length > 0) {
+          this.setCurrentOrg(orgs[0]); // auto pick first org
+        } else if (current && current.currentOrgId) {
+          // if we had a selected org but its name/role changed, sync it
+          const match = orgs.find(
+            (o) => o.organizationId === current.currentOrgId
+          );
+          if (match) {
+            this.setCurrentOrg(match);
           }
-        })
-      );
+        }
+      })
+    );
   }
 
   setCurrentOrg(org: OrgSummary): void {
     const current = this.authStateSubject.value;
     if (!current) return;
-
     const next: AuthState = {
       ...current,
       currentOrgId: org.organizationId,
       currentOrgName: org.organizationName,
     };
+    // console.log(this.currentOrgName)
     this.setAuthState(next);
   }
 
   setCurrentOrgById(orgId: string): void {
     const orgs = this.orgsSubject.value;
     const match = orgs.find((o) => o.organizationId === orgId);
+    console.log(match);
     if (match) {
       this.setCurrentOrg(match);
     }

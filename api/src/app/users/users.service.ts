@@ -32,6 +32,7 @@ export class UsersService {
     fullName: string,
     password: string
   ): Promise<User> {
+    // 10 salt rounds: good balance of security and performance, determine the computational difficulty and time it takes to generate a hash
     const passwordHash = await bcrypt.hash(password, 10);
     const user = this.usersRepo.create({ email, fullName, passwordHash });
     return this.usersRepo.save(user);
@@ -86,6 +87,7 @@ export class UsersService {
         user: { id: userId },
         organization: { id: orgId },
       },
+      // Membership entity already uses eager loading in code, but also request relations explicitly here. It’s not necessary but not harmful
       relations: ["user", "organization"],
     });
   }
@@ -96,6 +98,7 @@ export class UsersService {
     minRole: OrgRole
   ): Promise<Membership> {
     const membership = await this.getMembershipForUserInOrg(userId, orgId);
+    console.log(membership);
     if (!membership) {
       throw new ForbiddenException(
         "You are not a member of this organization."
@@ -138,7 +141,7 @@ export class UsersService {
     isNewMembership: boolean;
     roleChanged: boolean;
   }> {
-        const org = await this.orgsRepo.findOne({ where: { id: orgId } });
+    const org = await this.orgsRepo.findOne({ where: { id: orgId } });
     if (!org) {
       throw new NotFoundException("Organization not found");
     }
@@ -152,7 +155,7 @@ export class UsersService {
     if (!user) {
       if (!password || !password.trim()) {
         throw new BadRequestException(
-          "Password is required when creating a new user.",
+          "Password is required when creating a new user."
         );
       }
       user = await this.createUser(email, fullName, password);
@@ -208,7 +211,6 @@ export class UsersService {
       isNewMembership,
       roleChanged,
     };
-
   }
 
   /**
@@ -216,7 +218,7 @@ export class UsersService {
    * - Only ADMIN/OWNER can do this.
    * - Never allow removing the last OWNER in the org.
    */
-    async removeMembershipFromOrg(
+  async removeMembershipFromOrg(
     actorUserId: string,
     orgId: string,
     membershipId: string
@@ -230,9 +232,7 @@ export class UsersService {
     });
 
     if (!membership || membership.organization.id !== orgId) {
-      throw new NotFoundException(
-        "Membership not found in this organization",
-      );
+      throw new NotFoundException("Membership not found in this organization");
     }
 
     // Safety: do NOT remove last OWNER from an org
@@ -246,14 +246,13 @@ export class UsersService {
 
       if (ownerCount <= 1) {
         throw new ForbiddenException(
-          "Cannot remove the last OWNER from an organization.",
+          "Cannot remove the last OWNER from an organization."
         );
       }
     }
 
     await this.membershipsRepo.delete(membership.id);
   }
-
 
   async listMembershipsForUser(userId: string): Promise<Membership[]> {
     return this.membershipsRepo.find({

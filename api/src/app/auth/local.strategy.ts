@@ -7,6 +7,7 @@ import { User } from '../../entities/user.entity';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
+  // passport-local by default expects username + password, so changed it to expect email instead
   constructor(private authService: AuthService) {
     super({ usernameField: 'email' });
   }

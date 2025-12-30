@@ -14,7 +14,7 @@ import { ToastContainerComponent } from "./shared/toast-container.component";
 
 @Component({
   standalone: true,
-  selector: "app-root", // keep whatever Nx initially generated here
+  selector: "app-root",
   imports: [
     CommonModule,
     RouterOutlet,
@@ -27,6 +27,7 @@ import { ToastContainerComponent } from "./shared/toast-container.component";
   templateUrl: "./app.html",
   styleUrls: ["./app.css"],
 })
+
 export class AppComponent implements OnInit {
   organizations: OrgSummary[] = [];
   currentOrgId: string | null = null;

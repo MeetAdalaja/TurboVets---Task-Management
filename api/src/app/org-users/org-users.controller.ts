@@ -38,7 +38,7 @@ export class OrgUsersController {
     const actorUserId = req.user.userId as string;
     const orgId = this.getOrgIdFromRequest(req);
 
-    // Only ADMIN+ can view/manage org users
+    // Only Manager+ can view/manage org users
     await this.usersService.requireMembershipWithRole(
       actorUserId,
       orgId,
@@ -46,6 +46,7 @@ export class OrgUsersController {
     );
 
     const memberships = await this.usersService.listMembershipsForOrg(orgId);
+    console.log(memberships);
 
     return memberships.map((m) => ({
       membershipId: m.id,
@@ -61,7 +62,7 @@ export class OrgUsersController {
     const actorUserId = req.user.userId as string;
     const orgId = this.getOrgIdFromRequest(req);
 
-    // Only ADMIN+ can add/update users in org
+    // Only Manager+ can add/update users in org
     await this.usersService.requireMembershipWithRole(
       actorUserId,
       orgId,

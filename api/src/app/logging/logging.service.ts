@@ -1,11 +1,11 @@
 // api/src/app/logging/logging.service.ts
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
-import { AuditLog } from '../../entities/audit-log.entity';
-import { User } from '../../entities/user.entity';
-import { Organization } from '../../entities/organization.entity';
+import { AuditLog } from "../../entities/audit-log.entity";
+import { User } from "../../entities/user.entity";
+import { Organization } from "../../entities/organization.entity";
 
 interface LogOptions {
   actorUserId?: string;
@@ -25,11 +25,12 @@ export class LoggingService {
     @InjectRepository(User)
     private usersRepo: Repository<User>,
     @InjectRepository(Organization)
-    private orgsRepo: Repository<Organization>,
+    private orgsRepo: Repository<Organization>
   ) {}
 
   async log(action: string, options: LogOptions = {}): Promise<void> {
     try {
+      console.log("Logging action:", action, "with options:", options);
       const log = this.auditRepo.create({
         action,
         entityType: options.entityType,
@@ -56,7 +57,7 @@ export class LoggingService {
       await this.auditRepo.save(log);
     } catch (err) {
       // Logging should never break the main flow
-      this.logger.error('Failed to write audit log', err as any);
+      this.logger.error("Failed to write audit log", err as any);
     }
   }
 }

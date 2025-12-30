@@ -1,12 +1,13 @@
 // apps/api/src/entities/role.enum.ts
 export enum OrgRole {
-  OWNER = "OWNER",
-  ADMIN = "ADMIN",
-  MANAGER = "MANAGER",
-  MEMBER = "MEMBER",
-  VIEWER = "VIEWER",
+  OWNER = "OWNER", // creator of organization
+  ADMIN = "ADMIN", // manage users & tasks
+  MANAGER = "MANAGER", // manage tasks for team
+  MEMBER = "MEMBER", // standard user
+  VIEWER = "VIEWER", // read-only
 }
 
+// Simple helper for role hierarchy
 export const ROLE_PRIORITY: Record<OrgRole, number> = {
   [OrgRole.OWNER]: 5,
   [OrgRole.ADMIN]: 4,

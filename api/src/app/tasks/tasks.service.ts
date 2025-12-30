@@ -90,9 +90,9 @@ export class TasksService {
     );
 
     const org = membership.organization;
+    console.log(membership);
     const creator = membership.user;
     const dueDate = this.parseDueDate(dto.dueDate);
-    
 
     const task = this.tasksRepo.create({
       title: dto.title,
@@ -156,7 +156,10 @@ export class TasksService {
       throw new NotFoundException("Task not found in this organization");
     }
 
+    // MANAGER+ can update any task in the org
     const canManageAll = hasAtLeastRole(membership.role, OrgRole.MANAGER);
+
+    // MEMBER can update only if they created it OR they are assigned to it
     const isOwnerOrAssignee =
       membership.user.id === task.createdBy.id ||
       (task.assignedTo && membership.user.id === task.assignedTo.id);
@@ -178,6 +181,7 @@ export class TasksService {
       task.dueDate = this.parseDueDate(dto.dueDate);
     }
 
+    // Assignment update is special because it supports unassigning (null)
     if (dto.assignedToUserId !== undefined) {
       if (dto.assignedToUserId === null) {
         // Explicit unassign – always allowed as long as actor passed the RBAC checks above

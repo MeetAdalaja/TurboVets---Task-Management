@@ -1,14 +1,13 @@
 // web/src/app/features/org-users/org-users.service.ts
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { OrgRole, OrgUser } from '../../core/models';
-import { Observable } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { OrgRole, OrgUser } from "../../core/models";
+import { Observable } from "rxjs";
 
 const API_BASE_URL =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:3000/api'
-    : '/api';
-
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000/api"
+    : "/api";
 
 export interface AddOrgUserInput {
   email: string;
@@ -17,7 +16,7 @@ export interface AddOrgUserInput {
   password?: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class OrgUsersService {
   constructor(private http: HttpClient) {}
 
@@ -29,8 +28,8 @@ export class OrgUsersService {
     return this.http.post(`${API_BASE_URL}/org-users`, input);
   }
 
-    deleteOrgUser(membershipId: string) {
+  // delete by membershipId, not userId
+  deleteOrgUser(membershipId: string) {
     return this.http.delete<void>(`${API_BASE_URL}/org-users/${membershipId}`);
   }
-
 }
