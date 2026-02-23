@@ -22,7 +22,7 @@ The goal was to design and implement:
 
 GitHub Link: https://github.com/MeetAdalaja/TurboVets---Task-Management
 
-Deployed Version: https://turbovets-task-management.onrender.com 
+Deployed Version: https://multi-tenant-rbac-task-management-b.vercel.app/ 
 
 ## High-Level Overview
 Each organization represents various branches – location wise (e.g. “TurboVets – San Diego”, “TurboVets – Austin”).
