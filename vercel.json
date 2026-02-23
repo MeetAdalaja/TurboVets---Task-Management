@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://turbovets-task-management.onrender.com/api/$1"
+      "destination": "https://multi-tenant-rbac-task-management-board.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
