@@ -1,5 +1,7 @@
 # backend is deployed on Render, don't deploy it to Vercel
+api/
 api/**
 
-# optional: ignore local vercel metadata if it exists in repo
+# ignore local vercel metadata (optional)
+.vercel/
 .vercel/**
